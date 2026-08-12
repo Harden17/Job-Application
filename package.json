@@ -1,0 +1,19 @@
+{
+  "name": "job-application",
+  "version": "1.0.0",
+  "description": " A Job Application App with a prisma ORM and a postgresSQL database. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harden17/Job-Application.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Harden17/Job-Application/issues"
+  },
+  "homepage": "https://github.com/Harden17/Job-Application#readme"
+}
