@@ -1,6 +1,11 @@
 import express from "express";
+import authroute from "./routes/authroutes.js";
 
 const app = express();
+
+// middleware
+app.use(express.json());
+app.use("/auth", authroute);
 
 const PORT = process.env.PORT || 3000;
 
