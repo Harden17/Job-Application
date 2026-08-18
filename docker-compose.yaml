@@ -3,7 +3,7 @@ version: "3"
 services:
    db:
     image: postgres:13
-    container_name: postgres-db
+    container_name: japplication-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
