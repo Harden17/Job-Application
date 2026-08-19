@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobVault — Job Application Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="fanta.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-icon"><i class="fa-solid fa-briefcase"></i></span><span>JobVault</span></div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+        <button class="nav-item" data-view="jobs"><i class="fa-solid fa-bookmark"></i> Saved Jobs</button>
+      </nav>
+      <div class="sidebar-note"><i class="fa-solid fa-shield-halved"></i><span>Your applications stay organised and linked to your account.</span></div>
+    </aside>
+
+    <main class="main">
+      <div id="toast" class="toast"></div>
+
+      <section id="auth-view" class="auth-view">
+        <div class="auth-panel">
+          <div class="auth-brand"><span class="brand-icon"><i class="fa-solid fa-briefcase"></i></span><h1>JobVault</h1></div>
+          <p class="muted">Keep track of the jobs you're interested in, applying to, and interviewing for.</p>
+
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-auth="login">Login</button>
+            <button class="auth-tab" data-auth="register">Create account</button>
+          </div>
+
+          <form id="auth-form">
+            <label>Email<input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+            <label>Password<input id="auth-password" type="password" autocomplete="current-password" required placeholder="••••••••"></label>
+            <button class="primary-btn wide" type="submit" id="auth-submit">Login</button>
+          </form>
+          <p id="auth-message" class="form-message"></p>
+        </div>
+      </section>
+
+      <section id="app-view" class="hidden">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">JOB APPLICATION TRACKER</p>
+            <h1>Good to see you.</h1>
+            <p class="muted">Stay on top of every opportunity.</p>
+          </div>
+          <div class="top-actions">
+            <button class="icon-btn" id="refresh-btn" title="Refresh jobs"><i class="fa-solid fa-rotate"></i></button>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+          </div>
+        </header>
+
+        <section id="dashboard-view" class="view">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon blue"><i class="fa-solid fa-layer-group"></i></div><div><span>Total jobs</span><strong id="total-count">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon purple"><i class="fa-solid fa-paper-plane"></i></div><div><span>Applied</span><strong id="applied-count">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon orange"><i class="fa-solid fa-comments"></i></div><div><span>Interviews</span><strong id="interview-count">0</strong></div></div>
+            <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div><span>Accepted</span><strong id="accepted-count">0</strong></div></div>
+          </div>
+
+          <div class="content-grid">
+            <section class="panel">
+              <div class="panel-heading"><div><h2>Add a job</h2><p class="muted">Save an opportunity before you forget it.</p></div></div>
+              <form id="job-form" class="job-form">
+                <label>Company<input id="company" required placeholder="e.g. Google"></label>
+                <label>Job title<input id="job-title" required placeholder="e.g. Backend Engineer"></label>
+                <label class="full">Job URL<input id="job-url" type="url" required placeholder="https://company.com/jobs/123"></label>
+                <label>Status<select id="job-status"><option>Saved</option><option>Applied</option><option>Interview</option><option>Rejected</option><option>Accepted</option></select></label>
+                <button class="primary-btn" type="submit"><i class="fa-solid fa-plus"></i> Save job</button>
+              </form>
+              <p id="job-message" class="form-message"></p>
+            </section>
+
+            <section class="panel">
+              <div class="panel-heading"><div><h2>Quick view</h2><p class="muted">Your latest saved opportunities.</p></div><button class="text-btn" data-view="jobs">View all <i class="fa-solid fa-arrow-right"></i></button></div>
+              <div id="recent-jobs" class="compact-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="jobs-view" class="view hidden">
+          <div class="panel">
+            <div class="panel-heading">
+              <div><h2>Saved jobs</h2><p class="muted">Search and manage your opportunities.</p></div>
+              <button class="primary-btn" id="add-job-focus"><i class="fa-solid fa-plus"></i> Add job</button>
+            </div>
+            <div class="filters">
+              <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="search-input" placeholder="Search company or job title"></div>
+              <select id="status-filter"><option value="">All statuses</option><option>Saved</option><option>Applied</option><option>Interview</option><option>Rejected</option><option>Accepted</option></select>
+            </div>
+            <div id="jobs-list" class="jobs-list"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  // Change API_BASE if your backend is hosted somewhere else.
+  const API_BASE = "http://localhost:3000";
+
+  let mode = "login";
+  let jobs = [];
+  let token = localStorage.getItem("jobvault_token");
+
+  const $ = (id) => document.getElementById(id);
+  const authView = $("auth-view"), appView = $("app-view");
+
+  function showToast(message, type="success") {
+    const el = $("toast");
+    el.textContent = message;
+    el.className = `toast show ${type}`;
+    setTimeout(() => el.className = "toast", 3000);
+  }
+
+  function setAuthMode(next) {
+    mode = next;
+    document.querySelectorAll(".auth-tab").forEach(b => b.classList.toggle("active", b.dataset.auth === next));
+    $("auth-submit").textContent = next === "login" ? "Login" : "Create account";
+    $("auth-password").autocomplete = next === "login" ? "current-password" : "new-password";
+    $("auth-message").textContent = "";
+  }
+
+  async function api(path, options={}) {
+    const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const response = await fetch(API_BASE + path, { ...options, headers });
+    let data = null;
+    try { data = await response.json(); } catch {}
+    if (!response.ok) throw new Error(data?.message || data?.error || `Request failed (${response.status})`);
+    return data;
+  }
+
+  // These endpoint paths are conventional. If your Express router uses different
+  // paths, change only the strings below.
+  const ENDPOINTS = {
+    login: "/auth/login",
+    register: "/auth/register",
+    jobs: "/jobs"
+  };
+
+  function extractToken(data) {
+    return data?.token || data?.accessToken || data?.jwt || data?.data?.token || data?.data?.accessToken;
+  }
+
+  function extractJobs(data) {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.jobs)) return data.jobs;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.data?.jobs)) return data.data.jobs;
+    return [];
+  }
+
+  async function handleAuth(e) {
+    e.preventDefault();
+    const email = $("auth-email").value.trim();
+    const password = $("auth-password").value;
+    $("auth-message").textContent = "Please wait...";
+    try {
+      const data = await api(ENDPOINTS[mode], { method: "POST", body: JSON.stringify({ email, password }) });
+      const received = extractToken(data);
+      if (!received) throw new Error("Authentication succeeded, but no token was returned by the API.");
+      token = received;
+      localStorage.setItem("jobvault_token", token);
+      $("auth-form").reset();
+      showApp();
+      await loadJobs();
+    } catch (err) {
+      $("auth-message").textContent = err.message;
+      $("auth-message").className = "form-message error";
+    }
+  }
+
+  async function loadJobs() {
+    try {
+      const data = await api(ENDPOINTS.jobs);
+      jobs = extractJobs(data);
+      renderAll();
+    } catch (err) {
+      if (/401|403|unauthor/i.test(err.message)) logout(false);
+      else showToast(err.message, "error");
+    }
+  }
+
+  async function createJob(e) {
+    e.preventDefault();
+    const payload = {
+      company: $("company").value.trim(),
+      jobTitle: $("job-title").value.trim(),
+      jobUrl: $("job-url").value.trim(),
+      status: $("job-status").value
+    };
+    try {
+      await api(ENDPOINTS.jobs, { method: "POST", body: JSON.stringify(payload) });
+      $("job-form").reset();
+      $("job-status").value = "Saved";
+      $("job-message").textContent = "Job saved successfully.";
+      $("job-message").className = "form-message success";
+      showToast("Job saved");
+      await loadJobs();
+    } catch (err) {
+      $("job-message").textContent = err.message;
+      $("job-message").className = "form-message error";
+    }
+  }
+
+  async function updateJob(id, status) {
+    try {
+      await api(`${ENDPOINTS.jobs}/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+      showToast("Status updated");
+      await loadJobs();
+    } catch (err) { showToast(err.message, "error"); }
+  }
+
+  async function deleteJob(id) {
+    if (!confirm("Delete this saved job?")) return;
+    try {
+      await api(`${ENDPOINTS.jobs}/${id}`, { method: "DELETE" });
+      showToast("Job deleted");
+      await loadJobs();
+    } catch (err) { showToast(err.message, "error"); }
+  }
+
+  function statusClass(status) {
+    return String(status || "Saved").toLowerCase().replace(/\s+/g, "-");
+  }
+
+  function jobCard(job) {
+    const title = escapeHtml(job.jobTitle || "Untitled role");
+    const company = escapeHtml(job.company || "Unknown company");
+    const status = escapeHtml(job.status || "Saved");
+    const url = escapeAttr(job.jobUrl || "#");
+    return `<article class="job-card">
+      <div class="job-main">
+        <div class="company-avatar">${escapeHtml((job.company || "?").charAt(0).toUpperCase())}</div>
+        <div><h3>${title}</h3><p>${company}</p><a href="${url}" target="_blank" rel="noopener noreferrer">Open posting <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
+      </div>
+      <div class="job-actions">
+        <select class="status-select" data-id="${job.id}" aria-label="Change status">
+          ${["Saved","Applied","Interview","Rejected","Accepted"].map(s => `<option ${s === status ? "selected" : ""}>${s}</option>`).join("")}
+        </select>
+        <button class="danger-icon delete-job" data-id="${job.id}" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </article>`;
+  }
+
+  function renderAll() {
+    $("total-count").textContent = jobs.length;
+    $("applied-count").textContent = jobs.filter(j => j.status === "Applied").length;
+    $("interview-count").textContent = jobs.filter(j => j.status === "Interview").length;
+    $("accepted-count").textContent = jobs.filter(j => j.status === "Accepted").length;
+
+    $("recent-jobs").innerHTML = jobs.length
+      ? jobs.slice(-4).reverse().map(job => `<div class="compact-job"><span class="company-avatar small">${escapeHtml((job.company || "?").charAt(0).toUpperCase())}</span><div><strong>${escapeHtml(job.jobTitle || "Untitled")}</strong><span>${escapeHtml(job.company || "")}</span></div><span class="status ${statusClass(job.status)}">${escapeHtml(job.status || "Saved")}</span></div>`).join("")
+      : `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>No jobs saved yet.</p></div>`;
+
+    const search = $("search-input").value.toLowerCase().trim();
+    const filter = $("status-filter").value;
+    const filtered = jobs.filter(j => {
+      const matchesText = `${j.company || ""} ${j.jobTitle || ""}`.toLowerCase().includes(search);
+      return matchesText && (!filter || j.status === filter);
+    });
+    $("jobs-list").innerHTML = filtered.length ? filtered.map(jobCard).join("") :
+      `<div class="empty-state large"><i class="fa-solid fa-magnifying-glass"></i><h3>No matching jobs</h3><p>Try another search or save a new opportunity.</p></div>`;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
+  }
+  function escapeAttr(value) { return escapeHtml(value); }
+
+  function showApp() {
+    authView.classList.add("hidden");
+    appView.classList.remove("hidden");
+  }
+
+  function logout(show=true) {
+    token = null; jobs = [];
+    localStorage.removeItem("jobvault_token");
+    appView.classList.add("hidden");
+    authView.classList.remove("hidden");
+    if (show) showToast("Logged out");
+  }
+
+  function showView(view) {
+    document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+    $("dashboard-view").classList.toggle("hidden", view !== "dashboard");
+    $("jobs-view").classList.toggle("hidden", view !== "jobs");
+  }
+
+  document.querySelectorAll("[data-auth]").forEach(b => b.addEventListener("click", () => setAuthMode(b.dataset.auth)));
+  $("auth-form").addEventListener("submit", handleAuth);
+  $("job-form").addEventListener("submit", createJob);
+  $("logout-btn").addEventListener("click", () => logout());
+  $("refresh-btn").addEventListener("click", loadJobs);
+  $("search-input").addEventListener("input", renderAll);
+  $("status-filter").addEventListener("change", renderAll);
+
+  document.addEventListener("click", e => {
+    const nav = e.target.closest("[data-view]");
+    if (nav) {
+      showView(nav.dataset.view);
+      if (nav.id === "add-job-focus") document.querySelector("#company").focus();
+    }
+    const del = e.target.closest(".delete-job");
+    if (del) deleteJob(del.dataset.id);
+  });
+
+  document.addEventListener("change", e => {
+    if (e.target.matches(".status-select")) updateJob(e.target.dataset.id, e.target.value);
+  });
+
+  if (token) {
+    showApp();
+    loadJobs();
+  }
+})();
+</script>
+</body>
+</html>
