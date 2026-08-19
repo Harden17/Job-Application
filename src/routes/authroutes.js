@@ -2,6 +2,8 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../../prismaconfig.js"
+import dotenv from "dotenv";
+dotenv.config();
 
 const authroute = express.Router();
 
@@ -32,6 +34,7 @@ authroute.post("/register", async (req, res) => {
             return res.status(201).json({ token });
         }
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
