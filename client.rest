@@ -1,0 +1,8 @@
+# Emulate a register request
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123"
+}
