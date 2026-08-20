@@ -36,13 +36,13 @@ approutes.post("/", async (req, res) => {
         return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { company, jobTitle, jobURL, status } = req.body;
+    const { company, jobTitle, jobUrl, status } = req.body;
     try {
         const newJob = await prisma.job.create({
             data: {
                 company: company,
                 jobTitle: jobTitle,
-                jobURL: jobURL,
+                jobUrl: jobUrl,
                 status: status,
                 userId: userId
             }
