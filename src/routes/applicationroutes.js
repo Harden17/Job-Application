@@ -29,6 +29,33 @@ approutes.get("/", async (req, res) => {
 });
 
 
+// Create a new job application
+approutes.post("/", async (req, res) => {
+    const userId = req.userId;
+    if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { company, jobTitle, jobURL, status } = req.body;
+    try {
+        const newJob = await prisma.job.create({
+            data: {
+                company: company,
+                jobTitle: jobTitle,
+                jobURL: jobURL,
+                status: status,
+                userId: userId
+            }
+        });
+
+        res.status(201).json(newJob);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});   
+
 
 
 
