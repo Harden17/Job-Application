@@ -25,4 +25,19 @@ Content-Type: application/json
 
 
 ### Emulate a get request with authorization (protected route)
-GET http://localhost:3000/
+GET http://localhost:3000/jobs
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc4NzIyNzI2NCwiZXhwIjoxNzg3MzEzNjY0fQ.4CC8_fGNjP8W1ww2K0Z3T5eSovd7B98UFQNKQfqapKU
+
+
+
+### Emulate a post request with authorization (protected route)
+POST http://localhost:3000/jobs
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsImlhdCI6MTc4NzIyNzI2NCwiZXhwIjoxNzg3MzEzNjY0fQ.4CC8_fGNjP8W1ww2K0Z3T5eSovd7B98UFQNKQfqapKU
+Content-Type: application/json
+
+{
+    "company": "Test Company",
+    "jobTitle": "Test Job",
+    "jobURL": "http://test.com/job",
+    "status": "Applied"
+}
