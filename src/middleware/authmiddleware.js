@@ -4,7 +4,9 @@ dotenv.config();
 
 
 function authMiddleware(req, res, next) {
-    const token = req.headers['authorization']; 
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
+    const token = authHeader.split(' ')[1]; 
+
     if (!token) {
         return res.status(401).json({ message: 'Failed to authenticate userA!'});
     }
