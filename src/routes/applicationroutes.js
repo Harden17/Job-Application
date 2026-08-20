@@ -56,7 +56,57 @@ approutes.post("/", async (req, res) => {
     }
 });   
 
+// Update an existing job application
+approutes.patch("/:id", async (req, res) => {
+    const userId = req.userId;
+    if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    const jobId = parseInt(req.params.id);
+    const {status} = req.body;
+    if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+    }
 
+    try {
+        const updatedJob = await prisma.job.update({
+            where: {
+                id: jobId,
+                userId: userId
+            },
+            data: {
+                status: status
+            }
+        });
+
+        res.json(updatedJob);
+    } catch (error) {
+        console.error("Error updating job application:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// delete a job application
+approutes.delete("/:id", async (req, res) => {
+    const userId = req.userId;
+    if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+    const jobId = parseInt(req.params.id);
+
+    try {
+        await prisma.job.delete({
+            where: {
+                id: jobId,
+                userId: userId
+            }
+        });
+        res.status(200).json({ message: "Job application deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting job application:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+});
 
 
 export default approutes;
