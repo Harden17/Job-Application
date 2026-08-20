@@ -1,4 +1,8 @@
-# Emulate a register request
+# Emulate a get request
+GET http://localhost:3000
+
+
+### Emulate a register request
 POST http://localhost:3000/auth/register
 Content-Type: application/json
 
@@ -17,3 +21,8 @@ Content-Type: application/json
     "email": "test3@example.com",
     "password": "password123"
 }
+
+
+
+### Emulate a get request with authorization (protected route)
+GET http://localhost:3000/
