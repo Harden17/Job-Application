@@ -1,7 +1,23 @@
 version: "3"
 
 services:
-   db:
+
+  job: 
+    build: .
+    container_name: job-application
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@localhost:5432/job_application
+      - NODE_ENV=development
+      - JWT_SECRET=new_development_secret
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    volumes:
+      - .:/job
+
+  db:
     image: postgres:13
     container_name: japplication-db
     environment:
