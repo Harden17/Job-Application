@@ -10,8 +10,7 @@ const userSchema = z.object({
 export const validateUser = (req, res, next) => {
     const validationResult = userSchema.safeParse(req.body);
     if (!validationResult.success) {
-        const errors = validationResult.error.errors.map(err => err.message);
-        return res.status(400).json({ errors });
+        return res.status(400).json({ errors: validationResult.error.errors });
     }
     next();
 }
