@@ -14,7 +14,9 @@ export const validateUser = (schema) =>  {
     return (req, res, next) => {
         const validationResult = schema.safeParse(req.body);
         if (!validationResult.success) {
+            console.log(validationResult.error.errors);
             return res.status(400).json({ errors: validationResult.error.errors });
+            
         }
 
         req.body = validationResult.data; // Use the validated data
