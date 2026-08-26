@@ -4,6 +4,7 @@ import path,{dirname} from "path";
 import { fileURLToPath } from "url";
 import approutes from "./routes/applicationroutes.js";
 import authMiddleware from "./middleware/authmiddleware.js";
+import validateUser from "./middleware/validation.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,7 +18,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 // middleware
 app.use(express.json());
-app.use("/auth", authroute);
+app.use("/auth",validateUser, authroute);
 app.use("/jobs", authMiddleware, approutes);
 // Serve the frontend build files
 app.get("/", (req, res) => {
