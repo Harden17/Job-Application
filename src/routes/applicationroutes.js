@@ -1,5 +1,6 @@
 import express from "express";
 import prisma from "../../prismaconfig.js";
+import validateUser, { jobApplicationSchema } from "../middleware/validation.js";
 
 
 const approutes = express.Router();
@@ -30,7 +31,7 @@ approutes.get("/", async (req, res) => {
 
 
 // Create a new job application
-approutes.post("/", async (req, res) => {
+approutes.post("/",validateUser(jobApplicationSchema), async (req, res) => {
     const userId = req.userId;
     if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
