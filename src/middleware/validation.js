@@ -6,7 +6,15 @@ export const userSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
     password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
 });
-// 
+
+// New job application schema
+export const jobApplicationSchema = z.object({
+    company: z.string().min(2, { message: 'Company name must be at least 2 characters long' }),
+    jobTitle: z.string().min(2, { message: 'Job title must be at least 2 characters long' }),
+    jobUrl: z.string().url({ message: 'Invalid URL format' }),
+    userId: z.number().int({ message: 'User ID must be an integer' }),
+    status: z.enum(['applied', 'interviewing', 'offered', 'rejected'], { message: 'Invalid status value' }),
+});
 
 
 // create the validation middleware
