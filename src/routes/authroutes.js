@@ -2,13 +2,14 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../../prismaconfig.js"
+import validateUser, { userSchema } from "../middleware/validation.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const authroute = express.Router();
 
 // Register route
-authroute.post("/register", async (req, res) => {
+authroute.post("/register", validateUser(userSchema), async (req, res) => {
     const {email, password} = req.body;
     if (!email || !password) {
          return res.status(400).json({ error: "Email and password are required" });
@@ -40,7 +41,7 @@ authroute.post("/register", async (req, res) => {
 });
 
 // Login route
-authroute.post("/login", async (req, res) => {
+authroute.post("/login", validateUser(userSchema), async (req, res) => {
     const {email, password} = req.body;
 
     // get the password from the database
