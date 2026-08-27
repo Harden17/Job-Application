@@ -17,6 +17,9 @@ export const jobApplicationSchema = z.object({
 });
 
 
+export const updateJobStatusSchema = jobApplicationSchema.pick({ status: true });
+
+
 // create the validation middleware
 export const validateUser = (schema) =>  {
     return (req, res, next) => {
