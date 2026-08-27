@@ -1,6 +1,7 @@
 import express from "express";
 import prisma from "../../prismaconfig.js";
-import validateUser, { jobApplicationSchema } from "../middleware/validation.js";
+import validateUser, { jobApplicationSchema,updateJobStatusSchema } from "../middleware/validation.js";
+
 
 
 const approutes = express.Router();
@@ -58,7 +59,7 @@ approutes.post("/",validateUser(jobApplicationSchema), async (req, res) => {
 });   
 
 // Update an existing job application
-approutes.patch("/:id", async (req, res) => {
+approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req, res) => {
     const userId = req.userId;
     if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
