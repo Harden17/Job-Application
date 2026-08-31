@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import approutes from "./routes/applicationroutes.js";
 import authMiddleware from "./middleware/authmiddleware.js";
 import validateUser, {userSchema} from "./middleware/validation.js";
+import rateLimitingMiddleware from "./middleware/ratelimiting.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 // Middleware
 app.use(express.json());
+app.use(rateLimitingMiddleware);
 app.use("/auth", authroute);
 app.use("/jobs", authMiddleware, approutes);
 
