@@ -1,6 +1,5 @@
-import {z} from 'zod';
+import { z } from 'zod';
 
-// Define Schemas 
 // User registration and login schema
 export const userSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -12,24 +11,30 @@ export const jobApplicationSchema = z.object({
     company: z.string().min(2, { message: 'Company name must be at least 2 characters long' }),
     jobTitle: z.string().min(2, { message: 'Job title must be at least 2 characters long' }),
     jobUrl: z.string().url({ message: 'Invalid URL format' }),
-    status: z.enum(['applied', 'interview', 'accepted', 'rejected'], { message: 'Invalid status value' }),
+    userId: z.number().int().optional(), 
+    
+    // FIX: Expand the enum options to match every single frontend dropdown selection perfectly!
+    status: z.preprocess(
+        (val) => (typeof val === 'string' ? val.toLowerCase() : val),
+        z.enum(['saved', 'applied', 'interview', 'interviewing', 'offered', 'rejected', 'accepted'], { 
+            message: 'Invalid status value' 
+        })
+    ),
 });
-
 
 export const updateJobStatusSchema = jobApplicationSchema.pick({ status: true });
 
-
-// create the validation middleware
+// The validation middleware
 export const validateUser = (schema) =>  {
     return (req, res, next) => {
         const validationResult = schema.safeParse(req.body);
         if (!validationResult.success) {
-            console.log(validationResult.error.errors);
+            // This prints the exact mismatch field clearly in your terminal console!
+            console.log("Zod Validation Failed details:", validationResult.error.errors);
             return res.status(400).json({ errors: validationResult.error.errors });
-            
         }
 
-        req.body = validationResult.data; // Use the validated data
+        req.body = validationResult.data; 
         next();
     };
 };  
