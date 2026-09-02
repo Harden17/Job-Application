@@ -11,7 +11,7 @@ export const jobApplicationSchema = z.object({
     company: z.string().min(2, { message: 'Company name must be at least 2 characters long' }),
     jobTitle: z.string().min(2, { message: 'Job title must be at least 2 characters long' }),
     jobUrl: z.string().url({ message: 'Invalid URL format' }),
-    userId: z.number().int().optional(), 
+   
     
     // FIX: Expand the enum options to match every single frontend dropdown selection perfectly!
     status: z.preprocess(
