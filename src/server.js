@@ -30,9 +30,12 @@ app.use("/auth", authroute);
 app.use("/jobs", authMiddleware, approutes);
 
 
-// send the index.html file to the user to be displayed
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
+// send the index.html file to the user to be displayed in the frontend
+app.get("/", (req,res) => {
+    console.log("Response to the root directory has been detected!");
+    // Here we use the public directory after we have related it to the index file.
+    const index = path.join(__dirname, "public", "index.html");
+    res.status(200).sendFile(index);
 });
 
 app.listen(PORT, () => {
