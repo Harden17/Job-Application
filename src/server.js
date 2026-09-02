@@ -29,6 +29,12 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/auth", authroute);
 app.use("/jobs", authMiddleware, approutes);
 
+
+// send the index.html file to the user to be displayed
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
