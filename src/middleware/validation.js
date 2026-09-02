@@ -12,7 +12,7 @@ export const jobApplicationSchema = z.object({
     company: z.string().min(2, { message: 'Company name must be at least 2 characters long' }),
     jobTitle: z.string().min(2, { message: 'Job title must be at least 2 characters long' }),
     jobUrl: z.string().url({ message: 'Invalid URL format' }),
-    status: z.enum(['applied', 'interviewing', 'offered', 'rejected'], { message: 'Invalid status value' }),
+    status: z.enum(['applied', 'interview', 'accepted', 'rejected'], { message: 'Invalid status value' }),
 });
 
 
