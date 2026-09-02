@@ -7,6 +7,7 @@ import authMiddleware from "./middleware/authmiddleware.js";
 import validateUser, {userSchema} from "./middleware/validation.js";
 import rateLimitingMiddleware from "./middleware/ratelimiting.js";
 import helmetMiddleware from "./middleware/helmet.js";
+import corsMiddleware from "./middleware/cors.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.json());
 app.use(helmetMiddleware);
 app.use(rateLimitingMiddleware);
+app.use(corsMiddleware);
 app.use("/auth", authroute);
 app.use("/jobs", authMiddleware, approutes);
 
