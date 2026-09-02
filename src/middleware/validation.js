@@ -11,15 +11,7 @@ export const jobApplicationSchema = z.object({
     company: z.string().min(2, { message: 'Company name must be at least 2 characters long' }),
     jobTitle: z.string().min(2, { message: 'Job title must be at least 2 characters long' }),
     jobUrl: z.string().url({ message: 'Invalid URL format' }),
-   
-    
-    // FIX: Expand the enum options to match every single frontend dropdown selection perfectly!
-    status: z.preprocess(
-        (val) => (typeof val === 'string' ? val.toLowerCase() : val),
-        z.enum(['saved', 'applied', 'interview', 'interviewing', 'offered', 'rejected', 'accepted'], { 
-            message: 'Invalid status value' 
-        })
-    ),
+    status: z.enum(['Applied', 'Interview', 'Accepted', 'Rejected'], { message: 'Invalid status value' })
 });
 
 export const updateJobStatusSchema = jobApplicationSchema.pick({ status: true });
