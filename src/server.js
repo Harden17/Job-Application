@@ -34,7 +34,7 @@ app.use("/jobs", authMiddleware, approutes);
 app.get("/", (req,res) => {
     console.log("Response to the root directory has been detected!");
     // Here we use the public directory after we have related it to the index file.
-    const index = path.join(__dirname, "public", "index.html");
+    const index = path.join(__dirname, "../public", "index.html");
     res.status(200).sendFile(index);
 });
 
