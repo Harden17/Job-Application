@@ -16,11 +16,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // 1. Core Global Security & Parsing Middlewares
-app.use(express.json()); // Parses incoming request body data perfectly
 app.use(helmetMiddleware);
 app.use(rateLimitingMiddleware);
 app.use(corsMiddleware);
-
+app.use(express.json());
 // 2. Serve Frontend Static Assets Automatically
 // This handles serving your index.html and assets on "/" out-of-the-box!
 app.use(express.static(path.join(__dirname, "../public")));
