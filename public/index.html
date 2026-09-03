@@ -135,8 +135,6 @@
     return data;
   }
 
-  // These endpoint paths are conventional. If your Express router uses different
-  // paths, change only the strings below.
   const ENDPOINTS = {
     login: "/auth/login",
     register: "/auth/register",
@@ -155,170 +153,195 @@
     return [];
   }
 
+  // --- FIXED AUTHENTICATION HANDLING ---
   async function handleAuth(e) {
-    e.preventDefault();
+    e.preventDefault(); // <-- Stops the browser from appending "?" and reloading!
     const email = $("auth-email").value.trim();
     const password = $("auth-password").value;
+    $("auth-message").style.color = "inherit";
     $("auth-message").textContent = "Please wait...";
+
     try {
-      const data = await api(ENDPOINTS[mode], { method: "POST", body: JSON.stringify({ email, password }) });
+      // Your backend expects "username" instead of "email" based on your router file
+      const data = await api(ENDPOINTS[mode], { 
+        method: "POST", 
+        body: JSON.stringify({ username: email, password: password }) 
+      });
+
       const received = extractToken(data);
-      if (!received) throw new Error("Authentication succeeded, but no token was returned by the API.");
+      if (!received) throw new Error("Authentication succeeded, but no token was returned.");
+      
       token = received;
       localStorage.setItem("jobvault_token", token);
+      showToast(mode === "login" ? "Welcome back!" : "Account created successfully!");
+      
+      // Clear form inputs and switch to app dashboard
       $("auth-form").reset();
-      showApp();
-      await loadJobs();
+      initApp();
     } catch (err) {
+      console.error(err);
+      $("auth-message").style.color = "var(--error-color, red)";
       $("auth-message").textContent = err.message;
-      $("auth-message").className = "form-message error";
     }
   }
 
-  async function loadJobs() {
+  // --- JOB APP DASHBOARD RENDERING ---
+  async function fetchAndRenderJobs() {
     try {
       const data = await api(ENDPOINTS.jobs);
       jobs = extractJobs(data);
-      renderAll();
+      renderDashboard();
+      renderJobsList();
     } catch (err) {
-      if (/401|403|unauthor/i.test(err.message)) logout(false);
-      else showToast(err.message, "error");
+      showToast(err.message, "error");
+      if (err.message.includes("Unauthorized") || err.message.includes("401")) {
+        logout();
+      }
     }
   }
 
-  async function createJob(e) {
-    e.preventDefault();
-    const payload = {
-      company: $("company").value.trim(),
-      jobTitle: $("job-title").value.trim(),
-      jobUrl: $("job-url").value.trim(),
-      status: $("job-status").value
-    };
-    try {
-      await api(ENDPOINTS.jobs, { method: "POST", body: JSON.stringify(payload) });
-      $("job-form").reset();
-      $("job-status").value = "Saved";
-      $("job-message").textContent = "Job saved successfully.";
-      $("job-message").className = "form-message success";
-      showToast("Job saved");
-      await loadJobs();
-    } catch (err) {
-      $("job-message").textContent = err.message;
-      $("job-message").className = "form-message error";
-    }
-  }
-
-  async function updateJob(id, status) {
-    try {
-      await api(`${ENDPOINTS.jobs}/${id}`, { method: "PATCH", body: JSON.stringify({ status }) });
-      showToast("Status updated");
-      await loadJobs();
-    } catch (err) { showToast(err.message, "error"); }
-  }
-
-  async function deleteJob(id) {
-    if (!confirm("Delete this saved job?")) return;
-    try {
-      await api(`${ENDPOINTS.jobs}/${id}`, { method: "DELETE" });
-      showToast("Job deleted");
-      await loadJobs();
-    } catch (err) { showToast(err.message, "error"); }
-  }
-
-  function statusClass(status) {
-    return String(status || "Saved").toLowerCase().replace(/\s+/g, "-");
-  }
-
-  function jobCard(job) {
-    const title = escapeHtml(job.jobTitle || "Untitled role");
-    const company = escapeHtml(job.company || "Unknown company");
-    const status = escapeHtml(job.status || "Saved");
-    const url = escapeAttr(job.jobUrl || "#");
-    return `<article class="job-card">
-      <div class="job-main">
-        <div class="company-avatar">${escapeHtml((job.company || "?").charAt(0).toUpperCase())}</div>
-        <div><h3>${title}</h3><p>${company}</p><a href="${url}" target="_blank" rel="noopener noreferrer">Open posting <i class="fa-solid fa-arrow-up-right-from-square"></i></a></div>
-      </div>
-      <div class="job-actions">
-        <select class="status-select" data-id="${job.id}" aria-label="Change status">
-          ${["Saved","Applied","Interview","Rejected","Accepted"].map(s => `<option ${s === status ? "selected" : ""}>${s}</option>`).join("")}
-        </select>
-        <button class="danger-icon delete-job" data-id="${job.id}" title="Delete"><i class="fa-solid fa-trash"></i></button>
-      </div>
-    </article>`;
-  }
-
-  function renderAll() {
+  function renderDashboard() {
     $("total-count").textContent = jobs.length;
-    $("applied-count").textContent = jobs.filter(j => j.status === "Applied").length;
-    $("interview-count").textContent = jobs.filter(j => j.status === "Interview").length;
-    $("accepted-count").textContent = jobs.filter(j => j.status === "Accepted").length;
+    $("applied-count").textContent = jobs.filter(j => j.status?.toLowerCase() === "applied").length;
+    $("interview-count").textContent = jobs.filter(j => j.status?.toLowerCase() === "interview").length;
+    $("accepted-count").textContent = jobs.filter(j => j.status?.toLowerCase() === "accepted").length;
 
-    $("recent-jobs").innerHTML = jobs.length
-      ? jobs.slice(-4).reverse().map(job => `<div class="compact-job"><span class="company-avatar small">${escapeHtml((job.company || "?").charAt(0).toUpperCase())}</span><div><strong>${escapeHtml(job.jobTitle || "Untitled")}</strong><span>${escapeHtml(job.company || "")}</span></div><span class="status ${statusClass(job.status)}">${escapeHtml(job.status || "Saved")}</span></div>`).join("")
-      : `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>No jobs saved yet.</p></div>`;
+    // Render quick view panel (latest 3 jobs)
+    const recentContainer = $("recent-jobs");
+    const recentJobs = [...jobs].reverse().slice(0, 3);
+    
+    if (recentJobs.length === 0) {
+      recentContainer.innerHTML = `<p class="muted">No jobs tracked yet.</p>`;
+      return;
+    }
 
-    const search = $("search-input").value.toLowerCase().trim();
-    const filter = $("status-filter").value;
-    const filtered = jobs.filter(j => {
-      const matchesText = `${j.company || ""} ${j.jobTitle || ""}`.toLowerCase().includes(search);
-      return matchesText && (!filter || j.status === filter);
+    recentContainer.innerHTML = recentJobs.map(job => `
+      <div class="card compact-item">
+        <div>
+          <strong>${escapeHTML(job.company)}</strong> — ${escapeHTML(job.jobTitle)}
+        </div>
+        <span class="badge ${job.status?.toLowerCase()}">${escapeHTML(job.status)}</span>
+      </div>
+    `).join("");
+  }
+
+  function renderJobsList() {
+    const listContainer = $("jobs-list");
+    const searchVal = $("search-input").value.toLowerCase();
+    const filterStatus = $("status-filter").value;
+
+    const filtered = jobs.filter(job => {
+      const matchesSearch = job.company?.toLowerCase().includes(searchVal) || job.jobTitle?.toLowerCase().includes(searchVal);
+      const matchesFilter = !filterStatus || job.status === filterStatus;
+      return matchesSearch && matchesFilter;
     });
-    $("jobs-list").innerHTML = filtered.length ? filtered.map(jobCard).join("") :
-      `<div class="empty-state large"><i class="fa-solid fa-magnifying-glass"></i><h3>No matching jobs</h3><p>Try another search or save a new opportunity.</p></div>`;
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = `<p class="muted" style="padding: 20px; text-align: center;">No matching opportunities found.</p>`;
+      return;
+    }
+
+    listContainer.innerHTML = filtered.map(job => `
+      <div class="card job-card">
+        <div class="job-card-details">
+          <h3>${escapeHTML(job.jobTitle)}</h3>
+          <p><strong>${escapeHTML(job.company)}</strong></p>
+          ${job.jobUrl ? `<a href="${escapeHTML(job.jobUrl)}" target="_blank" class="job-link"><i class="fa-solid fa-external-link"></i> View Posting</a>` : ''}
+        </div>
+        <div class="job-card-actions">
+          <span class="badge ${job.status?.toLowerCase()}">${escapeHTML(job.status)}</span>
+        </div>
+      </div>
+    `).join("");
   }
 
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
-  }
-  function escapeAttr(value) { return escapeHtml(value); }
+  async function handleAddJob(e) {
+    e.preventDefault();
+    const company = $("company").value.trim();
+    const jobTitle = $("job-title").value.trim();
+    const jobURL = $("job-url").value.trim();
+    const status = $("job-status").value;
 
-  function showApp() {
+    try {
+      await api(ENDPOINTS.jobs, {
+        method: "POST",
+        body: JSON.stringify({ company, jobTitle, jobURL, status })
+      });
+      showToast("Job added successfully!");
+      $("job-form").reset();
+      fetchAndRenderJobs();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  // --- NAVIGATION & VIEW SCRIPTING ---
+  function switchView(viewName) {
+    document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+    document.querySelectorAll(".nav-item").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.view === viewName);
+    });
+    $(`${viewName}-view`).classList.remove("hidden");
+  }
+
+  function initApp() {
     authView.classList.add("hidden");
     appView.classList.remove("hidden");
+    switchView("dashboard");
+    fetchAndRenderJobs();
   }
 
-  function logout(show=true) {
-    token = null; jobs = [];
+  function logout() {
+    token = null;
     localStorage.removeItem("jobvault_token");
     appView.classList.add("hidden");
     authView.classList.remove("hidden");
-    if (show) showToast("Logged out");
+    setAuthMode("login");
   }
 
-  function showView(view) {
-    document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === view));
-    $("dashboard-view").classList.toggle("hidden", view !== "dashboard");
-    $("jobs-view").classList.toggle("hidden", view !== "jobs");
+  function escapeHTML(str) {
+    if (!str) return '';
+    return str.replace(/[&<>'"]/g, 
+      tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+    );
   }
 
-  document.querySelectorAll("[data-auth]").forEach(b => b.addEventListener("click", () => setAuthMode(b.dataset.auth)));
+  // --- ATTACH EVENT LISTENERS ---
   $("auth-form").addEventListener("submit", handleAuth);
-  $("job-form").addEventListener("submit", createJob);
-  $("logout-btn").addEventListener("click", () => logout());
-  $("refresh-btn").addEventListener("click", loadJobs);
-  $("search-input").addEventListener("input", renderAll);
-  $("status-filter").addEventListener("change", renderAll);
+  $("job-form").addEventListener("submit", handleAddJob);
+  $("logout-btn").addEventListener("click", logout);
+  $("refresh-btn").addEventListener("click", fetchAndRenderJobs);
+  $("search-input").addEventListener("input", renderJobsList);
+  $("status-filter").addEventListener("change", renderJobsList);
 
-  document.addEventListener("click", e => {
-    const nav = e.target.closest("[data-view]");
-    if (nav) {
-      showView(nav.dataset.view);
-      if (nav.id === "add-job-focus") document.querySelector("#company").focus();
-    }
-    const del = e.target.closest(".delete-job");
-    if (del) deleteJob(del.dataset.id);
+  $("add-job-focus").addEventListener("click", () => {
+    switchView("dashboard");
+    $("company").focus();
   });
 
-  document.addEventListener("change", e => {
-    if (e.target.matches(".status-select")) updateJob(e.target.dataset.id, e.target.value);
+  document.querySelectorAll(".auth-tab").forEach(tab => {
+    tab.addEventListener("click", (e) => setAuthMode(e.target.dataset.auth));
   });
 
+  document.querySelectorAll(".nav-item").forEach(item => {
+    item.addEventListener("click", (e) => {
+      const btn = e.target.closest(".nav-item");
+      if (btn) switchView(btn.dataset.view);
+    });
+  });
+
+  document.querySelectorAll("[data-view='jobs']").forEach(el => {
+    el.addEventListener("click", () => switchView("jobs"));
+  });
+
+  // --- RUN UPON INITIAL START ---
   if (token) {
-    showApp();
-    loadJobs();
+    initApp();
+  } else {
+    setAuthMode("login");
   }
 })();
+
 </script>
 </body>
 </html>
