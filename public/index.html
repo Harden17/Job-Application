@@ -259,13 +259,13 @@
     e.preventDefault();
     const company = $("company").value.trim();
     const jobTitle = $("job-title").value.trim();
-    const jobURL = $("job-url").value.trim();
+    const jobUrl = $("job-url").value.trim();
     const status = $("job-status").value;
 
     try {
       await api(ENDPOINTS.jobs, {
         method: "POST",
-        body: JSON.stringify({ company, jobTitle, jobURL, status })
+        body: JSON.stringify({ company, jobTitle, jobUrl, status })
       });
       showToast("Job added successfully!");
       $("job-form").reset();
