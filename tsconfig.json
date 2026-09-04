@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2022",                          /* Output modern JavaScript */
-    "module": "NodeNext",                        /* Enforce modern Node.js import behaviors */
-    "moduleResolution": "NodeNext",              /* Help find module paths smoothly */
+    "target": "es2022",                          /* Output modern JavaScript */
+    "module": "es2022",                        /* Enforce modern Node.js import behaviors */
+    "moduleResolution": "bundler",              /* Enable the importation of es modules */
     "rootDir": "./src",                          /* Where your TypeScript source files live */
     "outDir": "./dist",                          /* Where the translated JavaScript files will be built */
     "strict": true,                              /* Turn on strict type checking for max safety */
