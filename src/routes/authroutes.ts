@@ -37,7 +37,12 @@ authroute.post("/register", validateUser(userSchema), async (req: Request, res: 
             }
         });
 
-        const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            res.status(500).json({ error: "Internal server error" });
+            return;
+        }
+        const token = jwt.sign({ userId: newUser.id }, secret, { expiresIn: "24h" });
         if (token) {
            res.status(201).json({ token });
            
@@ -74,7 +79,12 @@ authroute.post("/login", validateUser(userSchema), async (req: Request, res: Res
         }
 
         // generate a JWT token and send it back to the client
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            res.status(500).json({ error: "Internal server error" });
+            return;
+        }
+        const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "24h" });
         if (token) {
             res.status(200).json({ token });
             return;
