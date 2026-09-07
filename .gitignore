@@ -5,3 +5,4 @@ src/generated/prisma
 .agents/
 skills-lock.json
 .env
+dist
