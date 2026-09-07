@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import express from "express";
 import authroute from "./routes/authroutes.js";
 import path, { dirname } from "path";
@@ -30,7 +31,7 @@ app.use("/jobs", authMiddleware, approutes);
 
 
 // send the index.html file to the user to be displayed in the frontend
-app.get("/", (req,res) => {
+app.get("/", (req: Request, res: Response): void => {
     console.log("Response to the root directory has been detected!");
     // Here we use the public directory after we have related it to the index file.
     const index = path.join(__dirname, "../public", "index.html");
@@ -40,3 +41,4 @@ app.get("/", (req,res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
