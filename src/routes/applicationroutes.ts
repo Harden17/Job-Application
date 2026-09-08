@@ -11,6 +11,12 @@ const approutes: Router = express.Router();
 interface AuthenticatedRequest extends Request {
     userId?: number; // Assuming userId is a number, adjust if it's a different type
 }
+
+// Also create a custom type for the params
+interface JobIdParams {
+    id: string; // The job ID will be a string in the URL, but we will parse it to a number
+}
+
 // 1. Get the list of all applications
 approutes.get("/", async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
@@ -61,7 +67,7 @@ approutes.post("/", validateUser(jobApplicationSchema), async (req: Authenticate
 });   
 
 // 3. Update an existing job application status
-approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request<JobIdParams> & AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
@@ -105,7 +111,7 @@ approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Authent
 });
 
 // 4. Delete a job application
-approutes.delete("/:id", async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+approutes.delete("/:id", async (req: Request<JobIdParams> & AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
