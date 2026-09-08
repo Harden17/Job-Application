@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import prisma from "../../prismaconfig.js"
+import prisma from "../prismaconfig.js";
 import validateUser, { userSchema } from "../middleware/validation.js";
 import dotenv from "dotenv";
 dotenv.config();
