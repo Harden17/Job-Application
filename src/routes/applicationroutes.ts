@@ -1,7 +1,7 @@
 import express from "express";
 import { Router } from "express";
 import { Request, Response } from "express";
-import prisma from "../../prismaconfig.js";
+import prisma from "../prismaconfig.js";
 import validateUser, { jobApplicationSchema, updateJobStatusSchema } from "../middleware/validation.js";
 
 const approutes: Router = express.Router();
