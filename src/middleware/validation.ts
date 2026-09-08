@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Request, Response, NextFunction } from 'express';
 
 // User registration and login schema
 export const userSchema = z.object({
@@ -17,13 +18,13 @@ export const jobApplicationSchema = z.object({
 export const updateJobStatusSchema = jobApplicationSchema.pick({ status: true });
 
 // The validation middleware
-export const validateUser = (schema) =>  {
-    return (req, res, next) => {
+export const validateUser = (schema: z.ZodTypeAny) =>  {
+    return (req: Request, res: Response, next: NextFunction) => {
         const validationResult = schema.safeParse(req.body);
         if (!validationResult.success) {
             // This prints the exact mismatch field clearly in your terminal console!
-            console.log("Zod Validation Failed details:", validationResult.error.errors);
-            return res.status(400).json({ errors: validationResult.error.errors });
+            console.log("Zod Validation Failed details");
+            return res.status(400).json({message: "Validation failed" });
         }
 
         req.body = validationResult.data; 
