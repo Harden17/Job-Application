@@ -6,8 +6,13 @@ import validateUser, { jobApplicationSchema, updateJobStatusSchema } from "../mi
 
 const approutes: Router = express.Router();
 
+
+// Create a custom type for the request to include the userId property
+interface AuthenticatedRequest extends Request {
+    userId?: number; // Assuming userId is a number, adjust if it's a different type
+}
 // 1. Get the list of all applications
-approutes.get("/", async (req: Request, res: Response): Promise<void> => {
+approutes.get("/", async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
@@ -29,7 +34,7 @@ approutes.get("/", async (req: Request, res: Response): Promise<void> => {
 });
 
 // 2. Create a new job application
-approutes.post("/", validateUser(jobApplicationSchema), async (req: Request, res: Response): Promise<void> => {
+approutes.post("/", validateUser(jobApplicationSchema), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
        res.status(401).json({ message: "Unauthorized" });
@@ -56,7 +61,7 @@ approutes.post("/", validateUser(jobApplicationSchema), async (req: Request, res
 });   
 
 // 3. Update an existing job application status
-approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request, res: Response): Promise<void> => {
+approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
@@ -100,7 +105,7 @@ approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request
 });
 
 // 4. Delete a job application
-approutes.delete("/:id", async (req: Request, res: Response): Promise<void> => {
+approutes.delete("/:id", async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const userId = req.userId;
     if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
