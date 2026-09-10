@@ -15,7 +15,7 @@ These commands help you download the code and install the necessary dependencies
 * npm install
 ---
 ###  ENVIRONMENT VARIABLES CONFIGURATION
-This project needs environment variables therefore create your .env files and add the following variables
+This project needs environment variables therefore create your .env files and add the following variables or you can view the .env.example file.
 * PORT
 * DATABASE_URL
 ---
