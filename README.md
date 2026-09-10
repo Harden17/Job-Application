@@ -8,17 +8,17 @@ In order to run this application, your computer should have the following softwa
 * **Nodejs**
 * **Git**
 * **Postgresql**
-
+---
 ### INSTALLATION
 These commands help you download the code and install the necessary dependencies
 * git clone 
 * npm install
-
+---
 ###  ENVIRONMENT VARIABLES CONFIGURATION
 This project needs environment variables therefore create your .env files and add the following variables
 * PORT
 * DATABASE_URL
-
+---
 ### DATABASE CONFIGURATION
 Since this project uses **Prisma**, you do not need to manually import SQL files. Prisma will configure your database automatically.
 
@@ -31,3 +31,14 @@ Since this project uses **Prisma**, you do not need to manually import SQL files
    ```bash
    npx prisma generate
    ```
+---   
+### RUN COMMAND
+
+Once your dependencies are installed, your configuration is set, and your database is initialized, you can launch the application.
+
+To start the development server with live-reloading:
+```bash
+npm run dev
+```
+
+The server should now be running locally at `http://localhost:3000`.   
