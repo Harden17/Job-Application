@@ -7,4 +7,9 @@ In order to run this application, your computer should have the following softwa
 * **Docker**
 * **Nodejs**
 * **Git**
-* **Postgresql*
+* **Postgresql**
+
+### INSTALLATION
+These commands help you download the code and install the necessary dependencies
+* git clone 
+* npm install
