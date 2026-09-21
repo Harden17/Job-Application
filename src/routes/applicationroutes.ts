@@ -41,6 +41,7 @@ approutes.get("/", async (req: AuthenticatedRequest, res: Response): Promise<voi
 
 // 2. Create a new job application
 approutes.post("/", validateUser(jobApplicationSchema), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    console.log("create job application request body:", req.body);
     const userId = req.userId;
     if (!userId) {
        res.status(401).json({ message: "Unauthorized" });
