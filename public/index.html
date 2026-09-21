@@ -172,7 +172,7 @@
       if (!received) throw new Error("Authentication succeeded, but no token was returned.");
       
       token = received;
-      localStorage.setItem("jobvault_token", token);
+      localStorage.getItem("jobvault_token", token);
       showToast(mode === "login" ? "Welcome back!" : "Account created successfully!");
       
       // Clear form inputs and switch to app dashboard
