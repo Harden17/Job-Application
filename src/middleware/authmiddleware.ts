@@ -35,7 +35,7 @@ function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunc
             return;
         }
 
-        req.userId = decoded.userId; // Attach the user ID to the request object
+        (req as any).userId = parseInt(decoded.userId, 10); // Attach the user ID to the request object
         
         next(); // CRITICAL: Moves the request to your controller/route handler!
         
