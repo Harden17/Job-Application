@@ -4,7 +4,7 @@
   "description": " A Job Application App with a prisma ORM and a postgresSQL database. ",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "tsx watch src/server.ts",
     "build": "npx prisma generate && tsc",
     "start": "node dist/src/server.js"
