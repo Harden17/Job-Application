@@ -1,20 +1,22 @@
-// import the request and the responese from the supertest
-import { Request,Response } from "supertest"; 
-import app from "../src/server.ts";
+import request from "supertest"; 
+import app from "../src/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import prisma from "../src/prismaconfig.ts";
+import prisma from "../src/prismaconfig";
 
+// 1. Tell Jest to automatically mock these modules before anything else runs
 jest.mock("bcrypt");
 jest.mock("jsonwebtoken");
-jest.mock("../src/prismaconfig.ts");
-  
-const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
-const mockJwt = jwt as jest.Mocked<typeof jwt>;
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+jest.mock("../src/prismaconfig", () => ({
+  __esModule: true,
+  default: {
+    user: {
+      create: jest.fn(),
+    },
+  },
+}));
 
 describe("POST /auth/register", () => {
-  // Set up a mock environment variable that your route expects
   beforeAll(() => {
     process.env.JWT_SECRET = "test-secret-key";
   });
@@ -29,30 +31,26 @@ describe("POST /auth/register", () => {
       password: "password123"
     };
 
-    // 1. Tell our fakes exactly how to behave when the route calls them
-    mockBcrypt.hash.mockImplementation(async () => "fakehashedpassword123");
-    
-    // We fake the Prisma database response to act like it successfully saved a user with ID '999'
+    // 2. Setup the "stunt double" behaviors using jest.mocked() for clean TypeScript types
+    jest.mocked(bcrypt.hash).mockResolvedValue("fakehashedpassword123" as never);
+    jest.mocked(jwt.sign).mockReturnValue("fake-jwt-token-xyz" as any);
     jest.mocked(prisma.user.create).mockResolvedValue({
       id: 999,
       email: user.email,
       password: "fakehashedpassword123"
     } as any);
 
-    // We fake the token generator to return a dummy text pass
-    mockJwt.sign.mockImplementation(() => "fake-jwt-token-xyz");
-
-    // 2. ACT: Execute the request using Supertest
-    const response: Response = await request(app)
+    // 3. ACT: Execute the endpoint
+    const response = await request(app)
       .post("/auth/register")
       .send(user);
 
-    // 3. ASSERT: Expect the results to match our design specs
+    // 4. ASSERT: Verify the outcomes
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("token");
     expect(response.body.token).toBe("fake-jwt-token-xyz");
 
-    // Verify our spy tools tracked that the database was touched exactly once
-    expect(mockPrisma.user.create).toHaveBeenCalledTimes(1);
+    // Verify the database spy was called exactly once
+    expect(prisma.user.create).toHaveBeenCalledTimes(1);
   });
-}); // <-- Fixed the closing parenthesis here!
+});
