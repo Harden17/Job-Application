@@ -1,5 +1,5 @@
-import request from "supertest"; // Import the request function to trigger HTTP calls
-import { Response } from "supertest";
+// import the request and the responese from the supertest
+import { Request,Response } from "supertest"; 
 import app from "../src/server.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
