@@ -9,7 +9,8 @@
     "strict": true,                              /* Turn on strict type checking for max safety */
     "esModuleInterop": true,                     /* Allows seamless importing of CommonJS packages */
     "skipLibCheck": true,                        /* Speeds up compilation by skipping checking external library files */
-    "forceConsistentCasingInFileNames": true     /* Disallow file path casing typos */
+    "forceConsistentCasingInFileNames": true,     /* Disallow file path casing typos */
+  "types": ["node", "jest"]                                  /* Include Node.js type definitions */
   },
   "include": ["src/**/*"]                        /* Tells the compiler to look inside your src folder */
 }
