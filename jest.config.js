@@ -1,8 +1,9 @@
 import tsJest from 'ts-jest';
 
-// Extract the preset creator from the ts-jest default export
 const { createDefaultPreset } = tsJest;
-const tsJestTransformCfg = createDefaultPreset().transform;
+
+// Pass { useESM: true } to force ts-jest to output modern module code
+const tsJestTransformCfg = createDefaultPreset({ useESM: true }).transform;
 
 /** @type {import("jest").Config} **/
 export default {
