@@ -26,5 +26,21 @@ describe("POST /auth/login", () => {
             email: "test@example.com",  
             password: "password123"
         };
-    });        
+        // tell our mocked modules how to behave.
+        jest.mocked(bcrypt.hash).mockResolvedValue("fakehashedpassword123" as never);
+        jest.mocked(jwt.sign).mockReturnValue("fake-jwt-token-xyz" as any);
+        jest.mocked(prisma.user.create).mockResolvedValue({
+            id: 999,
+            email: user.email,
+            password: "fakehashedpassword123"
+        } as any);
+        // Excecute the endpoint
+        const response = await request(app)
+            .post("/auth/login")
+            .send(user);
+        // Assert the response
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("token");
+    });      
+    
 }); 
