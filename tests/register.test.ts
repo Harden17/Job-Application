@@ -1,10 +1,3 @@
-import { jest } from '@jest/globals'; 
-import request from "supertest"; 
-import app from "../src/server";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import prisma from "../src/prismaconfig";
-
 // 1. Tell Jest to automatically mock these modules before anything else runs
 jest.mock("bcrypt");
 jest.mock("jsonwebtoken");
@@ -16,6 +9,15 @@ jest.mock("../src/prismaconfig", () => ({
     },
   },
 }));
+
+import { jest } from '@jest/globals'; 
+import request from "supertest"; 
+import app from "../src/server";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import prisma from "../src/prismaconfig";
+
+
 
 describe("POST /auth/register", () => {
   beforeAll(() => {
