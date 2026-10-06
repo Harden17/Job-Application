@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
 import express from "express";
-import authroute from "./routes/authroutes.js";
+import authroute from "./routes/authroutes";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import approutes from "./routes/applicationroutes.js";
-import authMiddleware from "./middleware/authmiddleware.js";
-import rateLimitingMiddleware from "./middleware/ratelimiting.js";
-import helmetMiddleware from "./middleware/helmet.js";
-import corsMiddleware from "./middleware/cors.js";
+import approutes from "./routes/applicationroutes";
+import authMiddleware from "./middleware/authmiddleware";
+import rateLimitingMiddleware from "./middleware/ratelimiting";
+import helmetMiddleware from "./middleware/helmet";
+import corsMiddleware from "./middleware/cors";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
