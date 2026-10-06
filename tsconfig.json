@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,     /* Disallow file path casing typos */
     "types": ["jest", "node"],                                  /* Include Node.js type definitions */
   },
-  "include": ["src/**/*"]                        /* Tells the compiler to look inside your src folder */
+  "include": ["src/**/*","tests/**/*"]                        /* Tells the compiler to look inside your src folder */
 }
