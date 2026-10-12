@@ -8,6 +8,7 @@ const tsJestTransformCfg = createDefaultPreset({ useESM: true }).transform;
 /** @type {import("jest").Config} **/
 export default {
   testEnvironment: "node",
+  setupFilesAfterEnv: ['./tests/jest.setup.ts'],
   transform: {
     ...tsJestTransformCfg,
   },
