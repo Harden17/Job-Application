@@ -1,7 +1,8 @@
 import request from 'supertest';
 import express from 'express';
 import  prisma  from '../src/prismaconfig';
-import approutes from '../src/routes/applicationroutes'; 
+import approutes from '../src/routes/applicationroutes';
+import { jest } from '@jest/globals'; 
 
 // Mock the Prisma client globally for this test file
 jest.mock('../src/prismaconfig', () => ({
