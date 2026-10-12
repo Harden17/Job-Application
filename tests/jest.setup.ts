@@ -14,7 +14,7 @@ jest.mock("jsonwebtoken", () => ({
 }));
 
 // 3. Mock Prisma completely
-jest.mock("./src/prismaconfig", () => ({
+jest.mock("../src/prismaconfig", () => ({
   __esModule: true,
   default: {
     user: {
