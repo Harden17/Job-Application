@@ -1,47 +1,48 @@
+// Create the mocks for the modules used in tests.
 jest.mock("jsonwebtoken");
-jest.mock("../src/prismaconfig");
 jest.mock("bcrypt");
+jest.mock("../src/prismaconfig");
 
-import { jest } from '@jest/globals'; 
+// Import the modules used in tests.
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import prisma from "../src/prismaconfig";
 import request from "supertest";
 import app from "../src/server";
-import jwt from "jsonwebtoken";
-import prisma from "../src/prismaconfig";
-import bcrypt from "bcrypt";
+import { jest } from "@jest/globals";
 
 
-// now we can write our test cases for the /auth/login endpoint
+// Start our test 
 describe("POST /auth/login", () => {
-    // Here we setup the necessary env variable.
     beforeAll(() => {
         process.env.JWT_SECRET = "test-secret-key";
     });
-    // here we clear the mocks after every test.so that  one test doesnt affect the other since the mock history is kept.
     afterEach(() => {
         jest.clearAllMocks();
     });
 
     it("should login a user successfully", async () => {
-        // this is created so that its referenced.
         const user = {
-            email: "test@example.com",  
+            email: "test@example.com",
             password: "password123"
         };
-        // tell our mocked modules how to behave.
-        jest.mocked(bcrypt.hash).mockResolvedValue("fakehashedpassword123" as never);
+        // Here we set up the "stunt double" behaviors using jest.mocked() for clean TypeScript types
+        jest.mocked(bcrypt.compare).mockResolvedValue(true);
         jest.mocked(jwt.sign).mockReturnValue("fake-jwt-token-xyz" as any);
-        jest.mocked(prisma.user.create).mockResolvedValue({
+        jest.mocked(prisma.user.findUnique).mockResolvedValue({
             id: 999,
             email: user.email,
-            password: "fakehashedpassword123"
-        } as any);
-        // Excecute the endpoint
-        const response = await request(app)
-            .post("/auth/login")
-            .send(user);
-        // Assert the response
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("token");
-    });      
-    
-}); 
+            password: user.password
+        } as any); 
+
+        // now after getting our data we send the request to the endpoint and assert the response
+    const response = await request(app)
+        .post("/auth/login")
+        .send(user);
+
+    // ASSERT: Verify the outcomes
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("token");
+    expect(response.body.token).toBe("fake-jwt-token-xyz");
+    });
+});
