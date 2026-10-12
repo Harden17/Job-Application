@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import  prisma  from '../src/prismaconfig';
+import  prisma   from '../src/prismaconfig';
 import approutes from '../src/routes/applicationroutes';
 import { jest } from '@jest/globals'; 
 
