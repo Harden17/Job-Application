@@ -1,4 +1,3 @@
-// after the importation mock the modules.
 jest.mock("jsonwebtoken");
 jest.mock("../src/prismaconfig");
 jest.mock("bcrypt");
@@ -23,6 +22,7 @@ describe("POST /auth/login", () => {
     });
 
     it("should login a user successfully", async () => {
+        // this is created so that its referenced.
         const user = {
             email: "test@example.com",  
             password: "password123"
