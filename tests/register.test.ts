@@ -1,8 +1,3 @@
-// Create mocks for the modules used in tests.
-jest.mock("jsonwebtoken");
-jest.mock("bcrypt");
-jest.mock("../src/prismaconfig");
-
 // Import the modules used in tests.
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
