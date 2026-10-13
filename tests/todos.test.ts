@@ -1,7 +1,6 @@
 import request from 'supertest';
-import express from 'express';
 import  prisma   from '../src/prismaconfig';
-import approutes from '../src/routes/applicationroutes';
+import app from '../src/server';
 import { jest } from '@jest/globals'; 
 
 // Mock the Prisma client globally for this test file
@@ -10,27 +9,17 @@ jest.mock('../src/prismaconfig', () => ({
     job: {
       findMany: jest.fn(),
     },
+    // this is going to allow us disconnect the prisma client after all tests are done. more like a clean exit.
     $disconnect: jest.fn(),
   },
 }));
 
-// Create a minimal wrapper app to isolate and test just this route group
-const testApp = express();
-testApp.use(express.json());
 
-// Simulate your auth middleware injecting `req.userId` for testing
-let mockUserId: number | string | undefined = 999;
-testApp.use((req: any, res, next) => {
-  req.userId = mockUserId;
-  next();
-});
 
-testApp.use('/jobs', approutes);
-
-describe('GET /jobs (Fetch User Job Applications)', () => {
+describe('GET /jobs/', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUserId = 999; // Reset to a valid authenticated user before each test
+    const mockUserId = 999; // Reset to a valid authenticated user before each test
   });
 
   afterAll(async () => {
@@ -46,8 +35,8 @@ describe('GET /jobs (Fetch User Job Applications)', () => {
         jest.mocked(prisma.job.findMany).mockResolvedValue(mockJobs as any);
 
         // 2. Act: hit the router root "/" via the wrapper app mount "/jobs"
-        const response = await request(testApp) 
-            .get('/jobs');
+        const response = await request(app) 
+            .get('/jobs/');
 
         // 3. Assert
         expect(response.status).toBe(200);
