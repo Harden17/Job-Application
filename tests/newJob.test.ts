@@ -1,22 +1,23 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
-import app from '../src/server';
-import prisma from '../src/prismaconfig'; 
-import {jest} from '@jest/globals';
 import jwt from 'jsonwebtoken';
 
-jest.mock('../src/prismaconfig', () => ({
-    __esModule: true,
-    default: {
-        job: {
-            create: jest.fn(),
-        },
+// Create the mock explicitly.
+const mockPrisma = {
+    job: {
+        create: jest.fn(),
     },
     $disconnect: jest.fn(),
+};
+
+// Register the mock BEFORE importing the application.
+jest.unstable_mockModule('../src/prismaconfig', () => ({
+    default: mockPrisma,
 }));
-jest.mock('jsonwebtoken', () => ({
-    verify: jest.fn(),
-    sign: jest.fn(),
-}));
+
+// Import these only after registering the mock.
+const { default: prisma } = await import('../src/prismaconfig');
+const { default: app } = await import('../src/server');
 
 
 describe('POST /jobs/', () => {
@@ -43,6 +44,9 @@ describe('POST /jobs/', () => {
         };
         // mock the jwt.verify to return the mock userId
         jest.mocked(jwt.verify).mockReturnValue({ userId: mockUserId } as any);
+        console.log('Prisma client:', prisma);
+        console.log('Job model:', prisma.job);
+        console.log('Create is a Jest mock:', jest.isMockFunction(prisma.job.create));
         // mock the prisma.job.create to return the new job with an id and userId
         jest.mocked(prisma.job.create).mockResolvedValue({
             id: 1,
