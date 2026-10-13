@@ -5,7 +5,8 @@ import {jest} from '@jest/globals';
 import jwt from 'jsonwebtoken';
 
 jest.mock('../src/prismaconfig', () => ({
-    prisma: {
+    __esModule: true,
+    default: {
         job: {
             create: jest.fn(),
         },
@@ -14,6 +15,7 @@ jest.mock('../src/prismaconfig', () => ({
 }));
 jest.mock('jsonwebtoken', () => ({
     verify: jest.fn(),
+    sign: jest.fn(),
 }));
 
 
