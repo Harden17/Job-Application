@@ -1,12 +1,10 @@
 import request from 'supertest';
-import  prisma   from '../src/prismaconfig';
-import app from '../src/server';
 import { jest } from '@jest/globals'; 
 import jwt from 'jsonwebtoken';
 
 // Mock the Prisma client globally for this test file
-jest.mock('../src/prismaconfig', () => ({
-  prisma: {
+jest.unstable_mockModule('../src/prismaconfig', () => ({
+  default: {
     job: {
       findMany: jest.fn(),
     },
@@ -15,10 +13,11 @@ jest.mock('../src/prismaconfig', () => ({
   },
 }));
 jest.mock('jsonwebtoken', () => ({
-  verify: jest.fn(),
+    verify: jest.fn(),
 }));
 
-
+const { default: prisma } = await import('../src/prismaconfig');
+const { default: app } = await import('../src/server');
 
 describe('GET /jobs/', () => {
   // create a mock userid.
