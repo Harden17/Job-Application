@@ -17,6 +17,9 @@ jest.mock('../src/prismaconfig', () => ({
 
 
 describe('GET /jobs/', () => {
+  // create a mock userid.
+  const mockUserId: number = 999;
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
