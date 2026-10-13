@@ -1,14 +1,29 @@
 // Import the modules used in tests.
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import prisma from "../src/prismaconfig";
 import request from "supertest";
-import app from "../src/server";
 import { jest } from "@jest/globals";
 
+jest.unstable_mockModule('../src/prismaconfig', () => ({
+    default: {
+        user: {
+            findUnique: jest.fn()
+        }
+    }
+}));
+
+const { default: prisma } = await import('../src/prismaconfig');
+const { default: app } = await import('../src/server');
 
 // Start our test 
 describe("POST /auth/login", () => {
+    const mockUserId: number = 999;
+    const token = jwt.sign(
+        { userId: mockUserId }, 
+        process.env.JWT_SECRET || 'your-jwt-secret',
+        { expiresIn: '24h' },
+    );
+    const hashedPassword = bcrypt.hashSync("password123", 10);
     beforeAll(() => {
         process.env.JWT_SECRET = "test-secret-key";
     });
@@ -22,12 +37,10 @@ describe("POST /auth/login", () => {
             password: "password123"
         };
         // Here we set up the "stunt double" behaviors using jest.mocked() for clean TypeScript types
-        jest.mocked(bcrypt.compare).mockResolvedValue(true);
-        jest.mocked(jwt.sign).mockReturnValue("fake-jwt-token-xyz" as any);
         jest.mocked(prisma.user.findUnique).mockResolvedValue({
             id: 999,
             email: user.email,
-            password: user.password
+            password: hashedPassword
         } as any); 
 
         // now after getting our data we send the request to the endpoint and assert the response
@@ -38,6 +51,5 @@ describe("POST /auth/login", () => {
     // ASSERT: Verify the outcomes
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("token");
-    expect(response.body.token).toBe("fake-jwt-token-xyz");
     });
 });
