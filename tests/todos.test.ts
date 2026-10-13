@@ -15,7 +15,6 @@ jest.mock('../src/prismaconfig', () => ({
   },
 }));
 jest.mock('jsonwebtoken', () => ({
-  sign: jest.fn(),
   verify: jest.fn(),
 }));
 
@@ -43,6 +42,7 @@ describe('GET /jobs/', () => {
             { id: 1, title: 'Frontend Developer', userId: 999, status: 'Applied' },
             { id: 2, title: 'Backend Engineer', userId: 999, status: 'Interviewing' },
         ];
+        jest.mocked(jwt.verify).mockReturnValue({ userId: mockUserId } as any);
         jest.mocked(prisma.job.findMany).mockResolvedValue(mockJobs as any);
 
         // 2. Act: hit the router root "/" via the wrapper app mount "/jobs"
