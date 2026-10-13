@@ -2,6 +2,7 @@ import request from 'supertest';
 import  prisma   from '../src/prismaconfig';
 import app from '../src/server';
 import { jest } from '@jest/globals'; 
+import jwt from 'jsonwebtoken';
 
 // Mock the Prisma client globally for this test file
 jest.mock('../src/prismaconfig', () => ({
@@ -13,12 +14,20 @@ jest.mock('../src/prismaconfig', () => ({
     $disconnect: jest.fn(),
   },
 }));
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+  verify: jest.fn(),
+}));
 
 
 
 describe('GET /jobs/', () => {
   // create a mock userid.
   const mockUserId: number = 999;
+  const mockToken: string = jwt.sign(
+      { userId: mockUserId }, 
+      process.env.JWT_SECRET || 'your-jwt-secret'
+    );  
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -38,7 +47,8 @@ describe('GET /jobs/', () => {
 
         // 2. Act: hit the router root "/" via the wrapper app mount "/jobs"
         const response = await request(app) 
-            .get('/jobs/');
+            .get('/jobs/')
+            .set('Authorization', `Bearer ${mockToken}`); 
 
         // 3. Assert
         expect(response.status).toBe(200);
