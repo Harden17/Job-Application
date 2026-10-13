@@ -1,4 +1,3 @@
-import express from 'express';
 import request from 'supertest';
 import app from '../src/server';
 import prisma from '../src/prismaconfig'; 
