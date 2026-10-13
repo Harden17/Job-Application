@@ -43,7 +43,6 @@ describe('POST /jobs/', () => {
             status: 'Applied',
         };
         // mock the jwt.verify to return the mock userId
-        jest.mocked(jwt.verify).mockReturnValue({ userId: mockUserId } as any);
         console.log('Prisma client:', prisma);
         console.log('Job model:', prisma.job);
         console.log('Create is a Jest mock:', jest.isMockFunction(prisma.job.create));
