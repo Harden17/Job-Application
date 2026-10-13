@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 // Mock the Prisma client globally for this test file
 jest.mock('../src/prismaconfig', () => ({
   prisma: {
-    job: {
+    todo: {
       findMany: jest.fn(),
     },
     // this is going to allow us disconnect the prisma client after all tests are done. more like a clean exit.
@@ -19,7 +19,6 @@ jest.mock('../src/prismaconfig', () => ({
 describe('GET /jobs/', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    const mockUserId = 999; // Reset to a valid authenticated user before each test
   });
 
   afterAll(async () => {
