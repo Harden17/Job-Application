@@ -6,7 +6,7 @@ import { jest } from '@jest/globals';
 // Mock the Prisma client globally for this test file
 jest.mock('../src/prismaconfig', () => ({
   prisma: {
-    todo: {
+    job: {
       findMany: jest.fn(),
     },
     // this is going to allow us disconnect the prisma client after all tests are done. more like a clean exit.
