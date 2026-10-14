@@ -68,52 +68,65 @@ approutes.post("/", validateUser(jobApplicationSchema), async (req: Authenticate
 });   
 
 // 3. Update an existing job application status
-approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request<JobIdParams> & AuthenticatedRequest, res: Response): Promise<void> => {
-    const userId = req.userId;
-    if (!userId) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-    }
-    
-    const jobId = parseInt(req.params.id);
-    if (isNaN(jobId)) {
-        res.status(400).json({ message: "Invalid Job ID format" });
-        return;
-    }
+approutes.patch(
+    "/:id",
+    validateUser(updateJobStatusSchema),
+    async (
+        req: Request<JobIdParams> & AuthenticatedRequest,
+        res: Response
+    ): Promise<void> => {
+        const userId = req.userId;
 
-    const { status } = req.body;
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
 
-    try {
-        // FIX: Using updateMany handles compound queries safely where 'userId' isn't a unique key.
-        const updateResult = await prisma.job.updateMany({
-            where: {
-                id: jobId,
-                userId: userId // Ensures users can only update their own records
-            },
-            data: {
-                status: status
+        const jobId = parseInt(req.params.id);
+
+        if (isNaN(jobId)) {
+            res.status(400).json({
+                message: "Invalid Job ID format"
+            });
+            return;
+        }
+
+        const { status } = req.body;
+
+        try {
+            const updateResult = await prisma.job.updateMany({
+                where: {
+                    id: jobId,
+                    userId: userId
+                },
+                data: {
+                    status: status
+                }
+            });
+
+            if (updateResult.count === 0) {
+                res.status(404).json({
+                    message: "Job application not found or unauthorized"
+                });
+                return;
             }
-        });
 
-       if (updateResult.count === 0) {
-            res.status(404).json({
-            message: "Job application not found or unauthorized"
-        });
-        return;
+            // This executes when at least one record was updated.
+            res.status(200).json({
+                message: "Job status updated successfully"
+            });
+            return;
 
-        res.status(200).json({
-            message: "Job status updated successfully"
-        });
-        return;
+        } catch (error) {
+            console.error("Error updating job status:", error);
+
+            res.status(500).json({
+                message: "Internal Server Error"
+            });
+            return;
+        }
     }
-    } catch (error) {
-    console.error("Error updating job status:", error);
-    res.status(500).json({
-        message: "Internal Server Error"
-    });
-    return;
-    }
-});
+);
 
 // 4. Delete a job application
 approutes.delete("/:id", async (req: Request<JobIdParams> & AuthenticatedRequest, res: Response): Promise<void> => {
