@@ -49,8 +49,8 @@ describe('PATCH /jobs/:id', () => {
             .send(updatedStatus);
 
         // Assert: Check that the response status is 200 and the response body contains the expected message
-        expect(response.status).toBe(200);
         expect(response.body).toEqual({ message: 'Job status updated successfully' });
+        expect(response.status).toBe(200);
 
     });    
 });    
