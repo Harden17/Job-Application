@@ -38,9 +38,8 @@ describe('PATCH /jobs/:id', () => {
         const jobId = 1;
         const updatedStatus = { status: 'Interview' };
 
-        // mock the prisma.job.updateMany to return a count of 1, indicating one record was updated
-        const updatedJob = await prisma.job.findFirst({ where: { id: jobId } });
-
+        jest.mocked(prisma.job.updateMany).mockResolvedValue({ count: 1 });
+        
         // Send the request to the endpoint
         const response = await request(app)
         // See here we are patching the id 

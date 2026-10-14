@@ -106,11 +106,12 @@ approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request
         });
         return;
     }
-
-
     } catch (error) {
-        res.status(500).json({ message: "Internal Server Error" });
-        return;
+    console.error("Error updating job status:", error);
+    res.status(500).json({
+        message: "Internal Server Error"
+    });
+    return;
     }
 });
 
