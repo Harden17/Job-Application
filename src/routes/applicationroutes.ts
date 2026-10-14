@@ -95,20 +95,19 @@ approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request
             }
         });
 
-        // If no rows were changed, it means the job didn't exist or didn't belong to the logged-in user
-        if (updateResult.count === 0) {
-            res.status(404).json({ message: "Job application not found or unauthorized" });
-            return;
-        }
-
-        // Fetch the newly updated job record to return it cleanly to the frontend
-        const updatedJob = await prisma.job.findFirst({ where:
-             { id: jobId } 
-            });
-        res.json(updatedJob);
-
-        res.status(200).json({ message: 'Job status updated successfully' });
+       if (updateResult.count === 0) {
+            res.status(404).json({
+            message: "Job application not found or unauthorized"
+        });
         return;
+
+        res.status(200).json({
+            message: "Job status updated successfully"
+        });
+        return;
+    }
+
+
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
         return;
