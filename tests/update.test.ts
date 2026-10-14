@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 const mockPrisma = {
     job: {
         updateMany: jest.fn(),
+        findFirst: jest.fn(),
     },
     $disconnect: jest.fn(),
 };
@@ -38,7 +39,7 @@ describe('PATCH /jobs/:id', () => {
         const updatedStatus = { status: 'Interview' };
 
         // mock the prisma.job.updateMany to return a count of 1, indicating one record was updated
-        jest.mocked(prisma.job.updateMany).mockResolvedValue({ count: 1 });
+        const updatedJob = await prisma.job.findFirst({ where: { id: jobId } });
 
         // Send the request to the endpoint
         const response = await request(app)
