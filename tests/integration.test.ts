@@ -42,33 +42,47 @@ describe('Integration Test for User login then getting todos', () => {
         password: hashedPassword,
         };
         // Create the jobs for the user
-        const todos = [
-        { id: 1, title: 'Todo 1', userId: 1 },
-        { id: 2, title: 'Todo 2', userId: 1 },
-        ];
-
+        const jobs = [
+    {
+        id: 1,
+        userId: 1,
+        company: 'Example Company',
+        jobTitle: 'Backend Developer',
+        jobUrl: 'https://example.com/jobs/1',
+        status: 'Applied',
+    },
+    {
+        id: 2,
+        userId: 1,
+        company: 'Another Company',
+        jobTitle: 'Junior Software Developer',
+        jobUrl: 'https://example.com/jobs/2',
+        status: 'Interview',
+    },
+];
         // Mock the database calls
         jest.mocked(prisma.user.findUnique).mockResolvedValue(user as any);
-        jest.mocked(prisma.job.findMany).mockResolvedValue(todos as any);
+        jest.mocked(prisma.job.findMany).mockResolvedValue(jobs as any);
 
 
-        // Send the requests.
-        const response = await request(app)
+        const loginResponse = await request(app)
             .post('/auth/login')
-            .send(user)
+            .send({
+                email: user.email,
+                password: 'password123'
+            });
 
-        // Responses
-        expect(response.status).toBe(200);
-        
-        // Send another request to get the todos
-        const response1 = await request(app)
-            .get('/jobs/')
-            .send(todos)
+        expect(loginResponse.status).toBe(200);
+
+        const token = loginResponse.body.token;
+
+        expect(token).toBeDefined();
+
+        const jobsResponse = await request(app)
+            .get('/jobs')
             .set('Authorization', `Bearer ${token}`);
 
-        // Responses
-        expect(response1.status).toBe(200);        
-
+        expect(jobsResponse.status).toBe(200);
     });
 });
 
