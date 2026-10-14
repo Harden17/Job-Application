@@ -102,8 +102,11 @@ approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request
         }
 
         // Fetch the newly updated job record to return it cleanly to the frontend
-        const updatedJob = await prisma.job.findFirst({ where: { id: jobId } });
+        const updatedJob = await prisma.job.findFirst({ where:
+             { id: jobId } 
+            });
         res.json(updatedJob);
+        return;
     } catch (error) {
         console.error("Error updating job application:", error);
         res.status(500).json({ message: "Internal Server Error" });
