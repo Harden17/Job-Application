@@ -106,6 +106,8 @@ approutes.patch("/:id", validateUser(updateJobStatusSchema), async (req: Request
              { id: jobId } 
             });
         res.json(updatedJob);
+
+        res.status(200).json({ message: 'Job status updated successfully' });
         return;
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
