@@ -14,7 +14,7 @@ const mockedPrisma = {
   },
   $disconnect: jest.fn(),
 };
-jest.mock('../src/prismaconfig', () => ({
+jest.unstable_mockModule('../src/prismaconfig', () => ({
     __esModule: true,
   default: mockedPrisma,
 }));
