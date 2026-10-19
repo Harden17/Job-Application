@@ -5,7 +5,7 @@ dotenv.config();
 
 // Create a custom type for the request object to include userId
 interface AuthenticatedRequest extends Request {
-    userId?: string;
+    userId?: number;
 }
 
 function authMiddleware(req: AuthenticatedRequest, res: Response, next: NextFunction) {
