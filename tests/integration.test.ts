@@ -26,7 +26,8 @@ describe('Integration Test for User login then getting todos', () => {
     const UserId: number = 1;
     const token: string = jwt.sign(
               { userId: UserId }, 
-              process.env.JWT_SECRET || 'your-jwt-secret'
+              process.env.JWT_SECRET || 'your-jwt-secret',
+              {expiresIn: "24h"}
     ); 
     const hashedPassword = bcrypt.hashSync('password123', 10);
     beforeAll(() => {
