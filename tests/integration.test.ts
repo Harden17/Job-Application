@@ -40,6 +40,7 @@ describe('Integration Test for User login then getting todos', () => {
     it('should login and get todos successfully', async () => {
         // Create a user with a hashed password
         const user = {
+        id :1,   
         email: 'user1@example.com',
         password: hashedPassword,
         };
@@ -83,7 +84,7 @@ describe('Integration Test for User login then getting todos', () => {
         const jobsResponse = await request(app)
             .get('/jobs')
             .set('Authorization', `Bearer ${token}`);
-
+             
         expect(jobsResponse.status).toBe(200);
     });
 });
