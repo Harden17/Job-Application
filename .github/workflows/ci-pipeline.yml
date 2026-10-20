@@ -1,0 +1,39 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull down your project files onto the runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup the Node runtime engine with automated NPM caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Clean install your production and development modules
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Generate your local Prisma Client artifacts from your schema file
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # 5. Compile TypeScript files to ensure there are no static type errors
+      - name: Run Type Check
+        run: npx tsc --noEmit
+
+      # 6. Execute your Jest test suite to check application logic
+      - name: Run Jest Test Suite
+        run: npm test
