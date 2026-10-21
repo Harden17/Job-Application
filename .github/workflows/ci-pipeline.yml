@@ -41,5 +41,5 @@ jobs:
       # 6. Execute your Jest test suite to check application logic
       - name: Run Jest Test Suite
         env:
-          jwtsecret: ${{ secrets.JWT_SECRET }} 
+          JWT_SECRET: ${{ secrets.JWT_SECRET }} 
         run: npm test
