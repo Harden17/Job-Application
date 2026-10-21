@@ -3,6 +3,7 @@ name: Continuous Integration
 on:
   push:
     branches: [ main ]
+  # this pull request means that someone wants to merge their code into our main branch  
   pull_request:
     branches: [ main ]
 
@@ -11,15 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Pull down your project files onto the runner
+      # 1. copy the repo files to the empty virtual machine.
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # 2. Setup the Node runtime engine with automated NPM caching
       - name: Setup Node.js
+        # this tells us to install prebuils note then with we add specifications.
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.18.0'
+          # This helps us save time by automatically using the already installed tools and dependencies.
           cache: 'npm'
 
       # 3. Clean install your production and development modules
