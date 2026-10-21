@@ -27,6 +27,7 @@ jobs:
 
       # 3. Clean install your production and development modules
       - name: Install Dependencies
+        # this is going to install everything cleans our node_modules file then installs everything once again.
         run: npm ci
 
       # 4. Generate your local Prisma Client artifacts from your schema file
@@ -39,4 +40,6 @@ jobs:
 
       # 6. Execute your Jest test suite to check application logic
       - name: Run Jest Test Suite
+        env:
+          jwtsecret: ${{ secrets.JWT_SECRET }} 
         run: npm test
