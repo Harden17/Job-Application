@@ -13,8 +13,8 @@ jest.unstable_mockModule('../src/prismaconfig', () => ({
   },
 }));
 
-const { default: prisma } = await import('../src/prismaconfig');
-const { default: app } = await import('../src/server');
+const { default: prisma } = await import('../src/prismaconfig.js');
+const { default: app } = await import('../src/server.js');
 
 describe('GET /jobs/', () => {
   // create a mock userid.
