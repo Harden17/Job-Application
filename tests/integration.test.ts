@@ -19,8 +19,8 @@ jest.unstable_mockModule('../src/prismaconfig', () => ({
   default: mockedPrisma,
 }));
 
-const {default: prisma} = await import('../src/prismaconfig.js');
-const {default: app} = await import('../src/server.js');
+const {default: prisma} = await import('../src/prismaconfig');
+const {default: app} = await import('../src/server');
 
 describe('Integration Test for User login then getting todos', () => {
     const UserId: number = 1;

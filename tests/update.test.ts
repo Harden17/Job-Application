@@ -15,8 +15,8 @@ jest.unstable_mockModule('../src/prismaconfig', () => ({
 }));
 
 // So these static imports are going to first wait for us to mock prisma.
-const {default: prisma} = await import('../src/prismaconfig.js');
-const {default: app} = await import('../src/server.js');
+const {default: prisma} = await import('../src/prismaconfig');
+const {default: app} = await import('../src/server');
 
 
 describe('PATCH /jobs/:id', () => {
