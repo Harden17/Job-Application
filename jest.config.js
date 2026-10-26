@@ -13,4 +13,7 @@ export default {
   },
   // This tells Jest to treat your TypeScript files as ES modules
   extensionsToTreatAsEsm: ['.ts'], 
+  moduleNameMapper: {
+  '^(\\.{1,2}/.*)\\.js$': '$1',
+},
 };
