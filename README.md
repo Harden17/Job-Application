@@ -98,8 +98,6 @@ JWT_SECRET="your_long_random_secret"
 
 Use the variable names required by your application. If your project uses a different name for the JWT secret, follow the name defined in your code and `.env.example`.
 
-**Important:** Never commit your real `.env` file or production secrets to GitHub.
-
 ### 4. Configure the database
 
 Ensure PostgreSQL is running and that your `DATABASE_URL` points to the correct database.
