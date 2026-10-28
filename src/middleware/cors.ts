@@ -3,7 +3,8 @@ import { RequestHandler } from "express";
 
 // Allowed origins for CORS
 const allowedOrigins = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://job-application-rfot.onrender.com/'
 ]
 
 
