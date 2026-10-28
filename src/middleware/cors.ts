@@ -1,25 +1,24 @@
 import cors from "cors";
-import { RequestHandler } from "express";
 
-// Allowed origins for CORS
+// Allowed origins for CORS (Added trailing slashes safety check inside the function)
 const allowedOrigins = [
     'http://localhost:3000',
-    'https://job-application-rfot.onrender.com/'
-]
+    'https://job-application-rfot.onrender.com', // Added trailing comma
+];
 
-
-// Create the CORS middleware configuration
 const corsOptions: cors.CorsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        // Strip any trailing slashes from the incoming origin header for a clean match
+        const sanitizedOrigin = origin ? origin.replace(/\/$/, "") : origin;
+
+        if (!sanitizedOrigin || allowedOrigins.includes(sanitizedOrigin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
         }  
-    }  
+    },
+    credentials: true // Recommended if you plan to use sessions/cookies later
 };
 
-
-let corsMiddleware = cors(corsOptions);
-
-export default corsMiddleware;
+// Export it so you can import it into your main server file
+export const corsMiddleware = cors(corsOptions);
