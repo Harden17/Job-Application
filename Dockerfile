@@ -16,6 +16,8 @@ RUN npx prisma generate
 
 RUN npm run build
 
+COPY public ./dist/src/public
+
 EXPOSE 3000
 
 CMD [ "node", "dist/src/server.js" ]
