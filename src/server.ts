@@ -23,7 +23,7 @@ app.use(corsMiddleware);
 app.use(express.json());
 // 2. Serve Frontend Static Assets Automatically
 // This handles serving your index.html and assets on "/" out-of-the-box!
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // 3. API Routes
 app.use("/auth", authroute);
